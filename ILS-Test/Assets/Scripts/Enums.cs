@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Enums : MonoBehaviour
 {
-    public DogBehavior dogBehavior;
+    public DogBehavior behaviorEnum;
 }
 
-public enum DogBehavior { Feed, Pet, Play }
+public enum DogBehavior { Feed, Pet, Play, Dead }

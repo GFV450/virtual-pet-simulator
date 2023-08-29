@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 25ba0a56704fc471d84b7e607561188f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - dogTransform: {instanceID: 0}
+  - animation: {instanceID: 0}
+  - breathe: {fileID: 8300000, guid: 172b1b7bed562d048bc6508fa5afc1a5, type: 3}
+  - bark: {fileID: 8300000, guid: cea652e298ed34f48b6e0bd72f453fdc, type: 3}
+  - dogAudio: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

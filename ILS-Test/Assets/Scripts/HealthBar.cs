@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +5,6 @@ public class HealthBar : MonoBehaviour
 {
     public DogData dogData;
 
-    // Update is called once per frame
     void Update()
     {
         if(dogData.health > 0)

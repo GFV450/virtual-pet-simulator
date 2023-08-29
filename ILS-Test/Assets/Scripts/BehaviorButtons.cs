@@ -1,26 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class BehaviorButtons : MonoBehaviour
 {
     public DogData dogData;
+    private bool isButtonActive;
+    private float buttonDelay = 3;
 
     void Start()
     {
         //Activates buttons at every specified amount of time.
-        float repeatRate = 5;
-        InvokeRepeating("ActivateButton", repeatRate, repeatRate);
+        Invoke("ActivateButton", buttonDelay);
 
-        OnActionSubscribe();
+        OnActionClickSubscribe();
     }
 
     void Update()
     {
-        if(dogData.health <= 0)
+        if(dogData.isDogAlive == false)
         {
-            CancelInvoke();
             DeactivateAllButtons();
         }
     }
@@ -28,35 +25,66 @@ public class BehaviorButtons : MonoBehaviour
     //Method that gets the number of children of the Action Buttons game object, and uses their index to activate a button.
     private void ActivateButton()
     {
-        int childIndex = gameObject.transform.childCount;
-        int activeChild = Random.Range(0, childIndex);
+        if (isButtonActive == false && dogData.IsDogIdle())
+        {
+            int childIndex = Random.Range(0, gameObject.transform.childCount);
 
-        gameObject.transform.GetChild(activeChild).gameObject.SetActive(true);
+            GameObject childToActivate = gameObject.transform.GetChild(childIndex).gameObject;
+            DogBehavior buttonBehavior = childToActivate.GetComponent<Enums>().behaviorEnum;
+
+            childToActivate.SetActive(true);
+            isButtonActive = true;
+
+            //Updates dog animation based on Behavior activated to sit, lay down, or run.
+            AnimationUpdateCall(buttonBehavior);
+        }
     }
 
-    //Method that deactivates a button after being clicked
-    private void DeactivateButton()
+    //Method that deactivates a button after being clicked.
+    private void DeactivateButton(DogBehavior buttonBehavior)
     {
-        EventSystem.current.currentSelectedGameObject.SetActive(false);
+        //Identifies button that's active based on behavior and deactivates it.
+        foreach (Transform child in transform)
+        {
+            if(child.gameObject.GetComponent<Enums>().behaviorEnum == buttonBehavior)
+            {
+                child.gameObject.SetActive(false);
+            }
+        }
+
+        isButtonActive = false;
+
+        //Updates dog animation back to idle state.
+        AnimationUpdateCall(buttonBehavior);
+
+        Invoke("ActivateButton", buttonDelay);
     }
 
+    //Method that iterates through all buttons and deactivates them when the game is over.
     private void DeactivateAllButtons()
     {
         foreach (Transform child in transform)
         {
-            OnDisableUnsubscribe();
+            OnActionClickUnsubscribe();
             child.gameObject.SetActive(false);
         }
     }
 
+    //Method that deals with all animations that need to be triggered for the dog.
+    private void AnimationUpdateCall(DogBehavior buttonBehavior)
+    {
+        dogData.UpdateDogAnimation(buttonBehavior);
+        StartCoroutine(dogData.MoveDog());
+    }
+
     //Method that calls our custom event system to perform an action and subscribe to an event.
-    private void OnActionSubscribe()
+    private void OnActionClickSubscribe()
     {
         GameManager.current.OnActionButtonClick += DeactivateButton;
     }
 
     //Method that calls our custom event system to unsubscribe to an event.
-    private void OnDisableUnsubscribe()
+    private void OnActionClickUnsubscribe()
     {
         GameManager.current.OnActionButtonClick -= DeactivateButton;
     }

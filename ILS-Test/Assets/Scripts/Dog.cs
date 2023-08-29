@@ -1,44 +1,41 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class Dog : MonoBehaviour
 {
     public DogData dogData;
-    private bool isDogAlive = true;
 
     void Start()
     {
+        //Sets all the parameters of the instantiated dog to the DogData scriptable object.
+        dogData.isDogAlive = true;
         dogData.health = 100;
+        dogData.transform = transform;
+        dogData.animation = gameObject.GetComponent<Animator>();
+        dogData.audio = gameObject.GetComponent<AudioSource>();
+
         OnActionSubscribe();
     }
 
     void Update()
     {
-        if(dogData.health > 0)
+        if (dogData.health > 0)
         {
             ReduceHealth();
         }
-        else if (dogData.health <= 0 && isDogAlive)
+        else if (dogData.health <= 0 && dogData.isDogAlive)
         {
             DogDeath();
         }
     }
 
     //Method that identifies which button was pressed, and what health value must be restored based on the DogBehavior enum.
-    private void RestoreHealth()
+    private void RestoreHealth(DogBehavior buttonBehavior)
     {
-        DogBehavior buttonBehaviorName = EventSystem.current.currentSelectedGameObject.GetComponent<Enums>().dogBehavior;
-
-        for (int index = 0; index < dogData.behaviorList.Length; index++)
+        foreach (DogData.Behavior dogBehavior in dogData.behaviorList)
         {
-            DogBehavior dogBehaviorName = dogData.behaviorList[index].behavior;
-            float healValue = dogData.behaviorList[index].behaviorHealValue;
-
-            if (dogBehaviorName == buttonBehaviorName)
+            if(dogBehavior.behavior == buttonBehavior)
             {
-                dogData.UpdateHealth(healValue);
+                dogData.UpdateHealth(dogBehavior.behaviorHealValue);
             }
         }
     }
@@ -49,11 +46,12 @@ public class Dog : MonoBehaviour
         dogData.health -= Time.deltaTime;
     }
 
-    //Method that signals when the dog has died and the game us over.
+    //Method that signals when the dog has died and the game is over.
     private void DogDeath()
     {
-        GameObject.Destroy(gameObject);
-        isDogAlive = false;
+        dogData.isDogAlive = false;
+
+        dogData.UpdateDogAnimation(DogBehavior.Dead);
         OnDisableUnsubscribe();
     }
 
